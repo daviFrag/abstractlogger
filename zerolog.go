@@ -1,15 +1,12 @@
 package abstractlogger
 
 import (
-	ll "log"
-
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 )
 
-func NewZerologLogger(zerologLogger *zerolog.Event, level Level) *ZerologLogger {
+func NewZerologLogger(level Level) *ZerologLogger {
 	return &ZerologLogger{
-		l:          zerologLogger,
 		levelCheck: NewLevelCheck(level),
 	}
 }
@@ -17,7 +14,6 @@ func NewZerologLogger(zerologLogger *zerolog.Event, level Level) *ZerologLogger 
 // ZerologLogger implements the Logging frontend using the popular logging backend log
 // It uses the LevelCheck helper to increase performance.
 type ZerologLogger struct {
-	l          *zerolog.Event
 	levelCheck LevelCheck
 }
 
@@ -110,33 +106,57 @@ type ZerologLevelLogger struct {
 func (z *ZerologLevelLogger) Println(v ...interface{}) {
 	switch z.level {
 	case DebugLevel:
-		ll.Println(v)
+		debug := log.Debug()
+		for _, e := range v {
+			debug.Interface("", e)
+		}
+		debug.Send()
 	case InfoLevel:
-		ll.Println(v)
+		info := log.Info()
+		for _, e := range v {
+			info.Interface("", e)
+		}
+		info.Send()
 	case WarnLevel:
-		ll.Println(v)
+		warn := log.Debug()
+		for _, e := range v {
+			warn.Interface("", e)
+		}
+		warn.Send()
 	case ErrorLevel:
-		ll.Println(v)
+		debug := log.Debug()
+		for _, e := range v {
+			debug.Interface("", e)
+		}
+		debug.Send()
 	case FatalLevel:
-		ll.Println(v)
+		fatal := log.Debug()
+		for _, e := range v {
+			fatal.Interface("", e)
+		}
+		fatal.Send()
 	case PanicLevel:
-		ll.Println(v)
+		panic := log.Debug()
+		for _, e := range v {
+			panic.Interface("", e)
+		}
+		panic.Send()
 	}
 }
 
 func (z *ZerologLevelLogger) Printf(format string, v ...interface{}) {
 	switch z.level {
 	case DebugLevel:
-		ll.Printf(format, v)
+		log.Debug().Msgf(format, v...)
 	case InfoLevel:
-		ll.Printf(format, v)
+		log.Info().Msgf(format, v...)
 	case WarnLevel:
-		ll.Printf(format, v)
+		log.Warn().Msgf(format, v...)
 	case ErrorLevel:
-		ll.Printf(format, v)
+		log.Error().Msgf(format, v...)
 	case FatalLevel:
-		ll.Printf(format, v)
+		log.Fatal().Msgf(format, v...)
 	case PanicLevel:
-		ll.Printf(format, v)
+		log.Panic().Msgf(format, v...)
 	}
 }
