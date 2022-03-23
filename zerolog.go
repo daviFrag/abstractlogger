@@ -51,6 +51,14 @@ func fieldsfn(init *zerolog.Event, fields []Field) *zerolog.Event {
 	return init
 }
 
+func (z *ZerologLogger) Trace(msg string, fields ...Field) {
+	if !z.levelCheck.Check(TraceLevel) {
+		return
+	}
+	trace := log.Trace()
+	fieldsfn(trace, fields).Msg(msg)
+}
+
 func (z *ZerologLogger) Debug(msg string, fields ...Field) {
 	if !z.levelCheck.Check(DebugLevel) {
 		return
@@ -105,10 +113,16 @@ type ZerologLevelLogger struct {
 
 func (z *ZerologLevelLogger) Println(v ...interface{}) {
 	switch z.level {
+	case TraceLevel:
+		trace := log.Trace()
+		for _, e := range v {
+			trace = trace.Interface("", e)
+		}
+		trace.Send()
 	case DebugLevel:
 		debug := log.Debug()
 		for _, e := range v {
-			debug.Interface("", e)
+			debug = debug.Interface("", e)
 		}
 		debug.Send()
 	case InfoLevel:
@@ -124,11 +138,11 @@ func (z *ZerologLevelLogger) Println(v ...interface{}) {
 		}
 		warn.Send()
 	case ErrorLevel:
-		debug := log.Debug()
+		err := log.Debug()
 		for _, e := range v {
-			debug.Interface("", e)
+			err = err.Interface("", e)
 		}
-		debug.Send()
+		err.Send()
 	case FatalLevel:
 		fatal := log.Debug()
 		for _, e := range v {
@@ -146,6 +160,8 @@ func (z *ZerologLevelLogger) Println(v ...interface{}) {
 
 func (z *ZerologLevelLogger) Printf(format string, v ...interface{}) {
 	switch z.level {
+	case TraceLevel:
+		log.Trace().Msgf(format, v...)
 	case DebugLevel:
 		log.Debug().Msgf(format, v...)
 	case InfoLevel:

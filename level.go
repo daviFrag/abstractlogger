@@ -8,9 +8,9 @@ type LevelCheck struct {
 	level Level
 }
 
-func NewLevelCheck (level Level) LevelCheck {
+func NewLevelCheck(level Level) LevelCheck {
 	return LevelCheck{
-		level:level,
+		level: level,
 	}
 }
 
@@ -18,7 +18,8 @@ func NewLevelCheck (level Level) LevelCheck {
 type Level int
 
 const (
-	DebugLevel Level = iota - 1
+	TraceLevel Level = iota - 1
+	DebugLevel
 	InfoLevel
 	WarnLevel
 	ErrorLevel
